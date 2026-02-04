@@ -23,7 +23,14 @@ export type BlockType =
   | 'divider'
 
 export interface BlockContent {
-  [key: string]: any
+  title?: string
+  subtitle?: string
+  text?: string
+  imageUrl?: string
+  videoUrl?: string
+  buttonText?: string
+  buttonLink?: string
+  items?: Array<Record<string, string | number | boolean>>
 }
 
 export interface BlockStyles {

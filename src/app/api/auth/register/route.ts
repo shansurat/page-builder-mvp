@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { hash } from 'bcryptjs'
+import { prisma } from '@/lib/db'
 
 export async function POST(request: Request) {
   try {
@@ -10,6 +9,13 @@ export async function POST(request: Request) {
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password must be at least 6 characters' },
         { status: 400 }
       )
     }
@@ -25,11 +31,13 @@ export async function POST(request: Request) {
       )
     }
 
+    const hashedPassword = await hash(password, 12)
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        password,
+        password: hashedPassword,
         role: 'VISITOR',
       },
     })

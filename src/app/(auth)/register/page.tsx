@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { hash } from 'bcryptjs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -35,15 +34,13 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const hashedPassword = await hash(password, 12)
-      
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
           email,
-          password: hashedPassword,
+          password,
         }),
       })
 
