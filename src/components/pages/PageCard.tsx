@@ -66,10 +66,18 @@ export function PageCard({ page, onDelete, onDuplicate }: PageCardProps) {
       
       <div className="flex gap-2">
         <Button
+          variant="default"
+          size="sm"
+          onClick={() => router.push(`/builder/${page.id}`)}
+          className="flex-1"
+        >
+          Build
+        </Button>
+        
+        <Button
           variant="outline"
           size="sm"
           onClick={() => router.push(`/pages/${page.id}/edit`)}
-          className="flex-1"
         >
           Edit
         </Button>
