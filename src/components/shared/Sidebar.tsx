@@ -11,14 +11,17 @@ import {
   Bell,
   Users,
   Settings,
+  BarChart3,
+  Radio,
 } from 'lucide-react'
 
 const menuItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Pages', href: '/pages', icon: FileText },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Media', href: '/media', icon: Image },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
-  { name: 'Notifications', href: '/notifications', icon: Bell },
+  { name: 'Broadcasts', href: '/broadcasts', icon: Radio },
   { name: 'Users', href: '/users', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
