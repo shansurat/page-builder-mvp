@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db'
 export default async function PagesPage({
   searchParams,
 }: {
-  searchParams: { page?: string; search?: string; status?: string }
+  searchParams: Promise<{ page?: string; search?: string; status?: string }>
 }) {
   const session = await getServerSession(authOptions)
 
@@ -15,10 +15,11 @@ export default async function PagesPage({
     redirect('/login')
   }
 
-  const page = parseInt(searchParams.page || '1')
+  const params = await searchParams
+  const page = parseInt(params.page || '1')
   const limit = 10
-  const search = searchParams.search || ''
-  const status = searchParams.status || ''
+  const search = params.search || ''
+  const status = params.status || ''
 
   const skip = (page - 1) * limit
   const where: Record<string, unknown> = {}

@@ -64,7 +64,7 @@ export function PageList({ initialPages, initialPagination }: PageListProps) {
 
   useEffect(() => {
     fetchPages()
-  }, [filters.page, filters.status])
+  }, [filters.page, filters.status, filters.search])
 
   const fetchPages = async () => {
     setLoading(true)
