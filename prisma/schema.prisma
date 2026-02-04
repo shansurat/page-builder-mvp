@@ -1,0 +1,194 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String         @id @default(cuid())
+  email             String         @unique
+  name              String?
+  password          String
+  role              String         @default("VISITOR") // ADMIN, MODERATOR, VISITOR
+  image             String?
+  emailVerified     DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  // Relations
+  pages             Page[]
+  mediaUploads      Media[]
+  sentMessages      Message[]      @relation("SentMessages")
+  receivedMessages  Message[]      @relation("ReceivedMessages")
+  notifications     Notification[]
+  broadcasts        Broadcast[]
+  permissions       Permission[]
+  auditLogs         AuditLog[]
+  
+  @@index([email])
+}
+
+model Permission {
+  id        String   @id @default(cuid())
+  userId    String
+  resource  String   // e.g., 'page', 'user', 'settings', 'media'
+  action    String   // e.g., 'create', 'edit', 'delete', 'approve', 'publish'
+  granted   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, resource, action])
+  @@index([userId])
+}
+
+model Page {
+  id              String         @id @default(cuid())
+  title           String
+  slug            String         @unique
+  content         String         @default("[]") // JSON string for page structure
+  seoTitle        String?
+  seoDescription  String?
+  seoKeywords     String?
+  status          String         @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED
+  authorId        String
+  publishedAt     DateTime?
+  scheduledFor    DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  // Relations
+  author          User           @relation(fields: [authorId], references: [id])
+  versions        PageVersion[]
+  analytics       Analytics[]
+  
+  @@index([slug])
+  @@index([authorId])
+  @@index([status])
+}
+
+model PageVersion {
+  id        String   @id @default(cuid())
+  pageId    String
+  content   String   // JSON string
+  version   Int
+  createdAt DateTime @default(now())
+  
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  
+  @@index([pageId])
+  @@index([createdAt])
+}
+
+model Media {
+  id           String   @id @default(cuid())
+  filename     String
+  url          String
+  type         String   // image, video, document
+  mimeType     String
+  size         Int      // in bytes
+  uploadedById String
+  folder       String?
+  tags         String?  // JSON array of tags
+  createdAt    DateTime @default(now())
+  
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
+  
+  @@index([uploadedById])
+  @@index([type])
+  @@index([folder])
+}
+
+model Message {
+  id          String        @id @default(cuid())
+  senderId    String
+  recipientId String
+  subject     String
+  content     String
+  status      String        @default("UNREAD") // UNREAD, READ, ARCHIVED
+  parentId    String?       // for threading
+  createdAt   DateTime      @default(now())
+  readAt      DateTime?
+  
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  recipient User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  parent    Message? @relation("MessageThread", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies   Message[] @relation("MessageThread")
+  
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([status])
+  @@index([parentId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      String           // MESSAGE, BROADCAST, SYSTEM, APPROVAL_REQUEST
+  title     String
+  content   String
+  read      Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+model Broadcast {
+  id        String            @id @default(cuid())
+  message   String
+  priority  String            @default("INFO") // INFO, WARNING, URGENT
+  sentById  String
+  targetRole String?          // null means all roles
+  createdAt DateTime          @default(now())
+  
+  sentBy User @relation(fields: [sentById], references: [id])
+  
+  @@index([sentById])
+  @@index([createdAt])
+}
+
+model Analytics {
+  id             String   @id @default(cuid())
+  pageId         String
+  date           DateTime @default(now())
+  views          Int      @default(0)
+  uniqueVisitors Int      @default(0)
+  bounceRate     Float?
+  avgDuration    Int?     // in seconds
+  deviceType     String?  // mobile, tablet, desktop
+  country        String?
+  
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  
+  @@index([pageId])
+  @@index([date])
+  @@unique([pageId, date])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // e.g., 'created_page', 'deleted_user', 'updated_settings'
+  resource  String   // e.g., 'page:123', 'user:456'
+  details   String?  // JSON string with additional info
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+}

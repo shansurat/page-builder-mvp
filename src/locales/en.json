@@ -1,0 +1,55 @@
+{
+  "common": {
+    "appName": "Page Builder",
+    "welcome": "Welcome",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "pages": "Pages",
+    "builder": "Builder",
+    "media": "Media Library",
+    "messages": "Messages",
+    "analytics": "Analytics",
+    "users": "Users",
+    "settings": "Settings",
+    "broadcasts": "Broadcasts"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "pages": {
+    "title": "Pages",
+    "createNew": "Create New Page",
+    "editPage": "Edit Page",
+    "deletePage": "Delete Page",
+    "publishPage": "Publish Page",
+    "unpublishPage": "Unpublish Page",
+    "duplicatePage": "Duplicate Page",
+    "viewPage": "View Page",
+    "pageTitle": "Page Title",
+    "pageSlug": "Page Slug",
+    "pageStatus": "Status",
+    "draft": "Draft",
+    "published": "Published",
+    "scheduled": "Scheduled"
+  }
+}
