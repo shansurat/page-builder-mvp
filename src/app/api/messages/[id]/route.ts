@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,8 +14,10 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     const message = await prisma.message.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         sender: {
           select: {
@@ -60,7 +62,7 @@ export async function GET(
     // Mark as read if user is the recipient
     if (message.recipientId === session.user.id && message.status === 'UNREAD') {
       await prisma.message.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           status: 'READ',
           readAt: new Date(),
@@ -80,7 +82,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -91,9 +93,10 @@ export async function PUT(
 
     const body = await request.json()
     const { status } = body
+    const { id } = await params
 
     const message = await prisma.message.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!message) {
@@ -106,7 +109,7 @@ export async function PUT(
     }
 
     const updatedMessage = await prisma.message.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         readAt: status === 'READ' ? new Date() : message.readAt,

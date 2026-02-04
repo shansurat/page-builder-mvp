@@ -7,7 +7,7 @@ import { join } from 'path'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -16,8 +16,10 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     const media = await prisma.media.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         uploadedBy: {
           select: {
@@ -45,7 +47,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -56,9 +58,10 @@ export async function PUT(
 
     const body = await request.json()
     const { filename, folder, tags } = body
+    const { id } = await params
 
     const media = await prisma.media.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!media) {
@@ -71,7 +74,7 @@ export async function PUT(
     }
 
     const updatedMedia = await prisma.media.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         filename: filename || media.filename,
         folder: folder !== undefined ? folder : media.folder,
@@ -93,7 +96,7 @@ export async function PUT(
       data: {
         userId: session.user.id,
         action: 'updated_media',
-        resource: `media:${params.id}`,
+        resource: `media:${id}`,
         details: JSON.stringify({
           filename,
           folder,
@@ -114,7 +117,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -123,8 +126,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     const media = await prisma.media.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!media) {
@@ -146,7 +151,7 @@ export async function DELETE(
 
     // Delete from database
     await prisma.media.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     // Create audit log
@@ -154,7 +159,7 @@ export async function DELETE(
       data: {
         userId: session.user.id,
         action: 'deleted_media',
-        resource: `media:${params.id}`,
+        resource: `media:${id}`,
         details: JSON.stringify({
           filename: media.filename,
           url: media.url,

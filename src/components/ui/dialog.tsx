@@ -3,6 +3,13 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
+interface DialogContextValue {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+const DialogContext = React.createContext<DialogContextValue | undefined>(undefined)
+
 interface DialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -29,6 +36,11 @@ interface DialogDescriptionProps extends React.HTMLAttributes<HTMLParagraphEleme
   children: React.ReactNode
 }
 
+interface DialogTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean
+  children: React.ReactNode
+}
+
 const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -48,31 +60,73 @@ const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
     }
   }, [open, onOpenChange])
 
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="fixed inset-0 bg-black/50"
-        onClick={() => onOpenChange(false)}
-      />
-      <div className="relative z-50">{children}</div>
-    </div>
+    <DialogContext.Provider value={{ open, onOpenChange }}>
+      {children}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => onOpenChange(false)}
+          />
+        </div>
+      )}
+    </DialogContext.Provider>
   )
 }
 
+const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTriggerProps>(
+  ({ asChild, children, ...props }, ref) => {
+    const context = React.useContext(DialogContext)
+    if (!context) throw new Error('DialogTrigger must be used within Dialog')
+
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(children as React.ReactElement<React.ButtonHTMLAttributes<HTMLButtonElement>>, {
+        ...props,
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+          context.onOpenChange(true);
+          (children.props as React.ButtonHTMLAttributes<HTMLButtonElement>).onClick?.(e)
+        },
+      })
+    }
+
+    return (
+      <button
+        ref={ref}
+        onClick={() => context.onOpenChange(true)}
+        {...props}
+      >
+        {children}
+      </button>
+    )
+  }
+)
+DialogTrigger.displayName = 'DialogTrigger'
+
 const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
   ({ className, children, ...props }, ref) => {
+    const context = React.useContext(DialogContext)
+    if (!context) throw new Error('DialogContent must be used within Dialog')
+    
+    if (!context.open) return null
+
     return (
       <div
         ref={ref}
         className={cn(
-          'relative w-full max-w-lg rounded-lg bg-white p-6 shadow-lg',
-          className
+          'fixed inset-0 z-50 flex items-center justify-center',
+          'pointer-events-none'
         )}
-        {...props}
       >
-        {children}
+        <div
+          className={cn(
+            'relative w-full max-w-lg rounded-lg bg-white p-6 shadow-lg pointer-events-auto',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </div>
       </div>
     )
   }
@@ -133,6 +187,7 @@ DialogDescription.displayName = 'DialogDescription'
 
 export {
   Dialog,
+  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogFooter,

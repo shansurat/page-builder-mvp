@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Card } from '@/components/ui/card'
 
 interface PageFormProps {
@@ -153,14 +159,17 @@ export function PageForm({ page, mode }: PageFormProps) {
           <div>
             <Label htmlFor="status">Status</Label>
             <Select
-              id="status"
               value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              disabled={loading}
+              onValueChange={(value) => setFormData({ ...formData, status: value })}
             >
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
-              <option value="SCHEDULED">Scheduled</option>
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+                <SelectItem value="PUBLISHED">Published</SelectItem>
+                <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 

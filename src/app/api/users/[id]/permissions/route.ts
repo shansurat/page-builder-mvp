@@ -16,7 +16,7 @@ const updatePermissionsSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -30,8 +30,10 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    const { id } = await params
+
     const permissions = await prisma.permission.findMany({
-      where: { userId: params.id },
+      where: { userId: id },
       orderBy: [
         { resource: 'asc' },
         { action: 'asc' },
@@ -50,7 +52,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -66,9 +68,10 @@ export async function PUT(
 
     const body = await request.json()
     const validatedData = updatePermissionsSchema.parse(body)
+    const { id } = await params
 
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!user) {
@@ -77,12 +80,12 @@ export async function PUT(
 
     // Delete existing permissions and create new ones
     await prisma.permission.deleteMany({
-      where: { userId: params.id },
+      where: { userId: id },
     })
 
     const permissions = await prisma.permission.createMany({
       data: validatedData.permissions.map(p => ({
-        userId: params.id,
+        userId: id,
         resource: p.resource,
         action: p.action,
         granted: p.granted,
@@ -94,7 +97,7 @@ export async function PUT(
       data: {
         userId: session.user.id,
         action: 'updated_permissions',
-        resource: `user:${params.id}`,
+        resource: `user:${id}`,
         details: JSON.stringify({
           permissions: validatedData.permissions,
         }),

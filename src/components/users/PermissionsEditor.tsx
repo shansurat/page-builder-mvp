@@ -52,14 +52,16 @@ export function PermissionsEditor({ user, onSave, onCancel }: PermissionsEditorP
       const response = await fetch(`/api/users/${user.id}/permissions`)
       if (response.ok) {
         const data = await response.json()
-        const existingPerms = new Map(
-          data.map((p: Permission) => [`${p.resource}:${p.action}`, p.granted])
-        )
+        const existingPerms = new Map<string, boolean>()
+        
+        data.forEach((p: Permission) => {
+          existingPerms.set(`${p.resource}:${p.action}`, p.granted)
+        })
 
-        const allPermissions = AVAILABLE_PERMISSIONS.map((p) => ({
+        const allPermissions: Permission[] = AVAILABLE_PERMISSIONS.map((p) => ({
           resource: p.resource,
           action: p.action,
-          granted: existingPerms.get(`${p.resource}:${p.action}`) || false,
+          granted: existingPerms.get(`${p.resource}:${p.action}`) ?? false,
         }))
 
         setPermissions(allPermissions)

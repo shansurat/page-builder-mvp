@@ -10,7 +10,7 @@ const replySchema = z.object({
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -21,10 +21,11 @@ export async function POST(
 
     const body = await request.json()
     const validatedData = replySchema.parse(body)
+    const { id } = await params
 
     // Get parent message
     const parentMessage = await prisma.message.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!parentMessage) {
@@ -48,7 +49,7 @@ export async function POST(
         subject: `Re: ${parentMessage.subject}`,
         content: validatedData.content,
         status: 'UNREAD',
-        parentId: params.id,
+        parentId: id,
       },
       include: {
         sender: {
@@ -75,7 +76,7 @@ export async function POST(
         type: 'MESSAGE',
         title: 'New Reply',
         content: `${session.user.name || session.user.email} replied to your message: ${parentMessage.subject}`,
-        link: `/messages?id=${params.id}`,
+        link: `/messages?id=${id}`,
       },
     })
 
