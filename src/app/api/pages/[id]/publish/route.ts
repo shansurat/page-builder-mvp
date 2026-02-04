@@ -46,7 +46,7 @@ export async function POST(
     
     if (action === 'publish') {
       updateData.status = 'PUBLISHED'
-      updateData.publishedAt = new Date()
+      updateData.publishedAt = existingPage.publishedAt || new Date()
       updateData.scheduledFor = null
     } else {
       updateData.status = 'DRAFT'

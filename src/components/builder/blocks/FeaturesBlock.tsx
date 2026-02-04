@@ -7,7 +7,6 @@ interface FeaturesBlockProps {
 export function FeaturesBlock({ block }: FeaturesBlockProps) {
   const { content } = block
   const items = (content.items as Array<{ icon?: string; title: string; description: string }>) || []
-  const columns = items.length >= 4 ? 4 : items.length >= 3 ? 3 : 2
 
   if (items.length === 0) {
     items.push(
@@ -15,6 +14,12 @@ export function FeaturesBlock({ block }: FeaturesBlockProps) {
       { icon: '⚡', title: 'Feature 2', description: 'Description for feature 2' },
       { icon: '🎯', title: 'Feature 3', description: 'Description for feature 3' }
     )
+  }
+
+  const getGridCols = () => {
+    if (items.length >= 4) return 'md:grid-cols-4'
+    if (items.length >= 3) return 'md:grid-cols-3'
+    return 'md:grid-cols-2'
   }
 
   return (
@@ -29,7 +34,7 @@ export function FeaturesBlock({ block }: FeaturesBlockProps) {
           {content.subtitle}
         </p>
       )}
-      <div className={`grid gap-8 md:grid-cols-${columns}`}>
+      <div className={`grid gap-8 ${getGridCols()}`}>
         {items.map((item, index) => (
           <div key={index} className="text-center">
             {item.icon && (

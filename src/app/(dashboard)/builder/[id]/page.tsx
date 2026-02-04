@@ -49,7 +49,7 @@ export default function BuilderPage() {
   const handleSave = async () => {
     try {
       const res = await fetch(`/api/pages/${pageId}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: JSON.stringify(blocks),
@@ -68,11 +68,23 @@ export default function BuilderPage() {
 
   const handlePublish = async () => {
     try {
+      // First save the content
+      const saveRes = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: JSON.stringify(blocks),
+        }),
+      })
+
+      if (!saveRes.ok) throw new Error('Failed to save')
+
+      // Then publish
       const res = await fetch(`/api/pages/${pageId}/publish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: JSON.stringify(blocks),
+          action: 'publish',
         }),
       })
 

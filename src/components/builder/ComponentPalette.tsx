@@ -109,7 +109,7 @@ export function ComponentPalette() {
 
   const handleAddBlock = (type: BlockType) => {
     const newBlock: BlockComponent = {
-      id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `block-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       type,
       content: getDefaultContent(type),
       styles: {

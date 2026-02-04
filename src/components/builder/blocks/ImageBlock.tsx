@@ -1,5 +1,4 @@
 import { BlockComponent } from '@/types'
-import Image from 'next/image'
 
 interface ImageBlockProps {
   block: BlockComponent
