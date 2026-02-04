@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { PageList } from '@/components/pages/PageList'
+import { prisma } from '@/lib/db'
 
 export default async function PagesPage({
   searchParams,
@@ -15,36 +16,55 @@ export default async function PagesPage({
   }
 
   const page = parseInt(searchParams.page || '1')
+  const limit = 10
   const search = searchParams.search || ''
   const status = searchParams.status || ''
 
-  const params = new URLSearchParams({
-    page: page.toString(),
-    limit: '10',
-    ...(search && { search }),
-    ...(status && { status }),
-  })
-
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-  const response = await fetch(`${baseUrl}/api/pages?${params}`, {
-    headers: {
-      Cookie: `next-auth.session-token=${session}`,
-    },
-    cache: 'no-store',
-  })
-
-  let pages = []
-  let pagination = {
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0,
+  const skip = (page - 1) * limit
+  const where: Record<string, unknown> = {}
+  
+  if (search) {
+    where.OR = [
+      { title: { contains: search } },
+      { slug: { contains: search } },
+    ]
+  }
+  
+  if (status) {
+    where.status = status
   }
 
-  if (response.ok) {
-    const data = await response.json()
-    pages = data.pages
-    pagination = data.pagination
+  // Non-admin users can only see their own pages
+  if (session.user.role !== 'ADMIN') {
+    where.authorId = session.user.id
+  }
+
+  const [pages, total] = await Promise.all([
+    prisma.page.findMany({
+      where,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }),
+    prisma.page.count({ where }),
+  ])
+
+  const pagination = {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
   }
 
   return (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -61,6 +61,10 @@ export function PageList({ initialPages, initialPagination }: PageListProps) {
     status: '',
     page: 1,
   })
+
+  useEffect(() => {
+    fetchPages()
+  }, [filters.page, filters.status])
 
   const fetchPages = async () => {
     setLoading(true)
@@ -182,7 +186,6 @@ export function PageList({ initialPages, initialPagination }: PageListProps) {
           value={filters.status}
           onChange={(e) => {
             setFilters({ ...filters, status: e.target.value, page: 1 })
-            setTimeout(fetchPages, 0)
           }}
           className="max-w-xs"
         >
@@ -292,7 +295,6 @@ export function PageList({ initialPages, initialPagination }: PageListProps) {
               size="sm"
               onClick={() => {
                 setFilters({ ...filters, page: filters.page - 1 })
-                setTimeout(fetchPages, 0)
               }}
               disabled={pagination.page === 1 || loading}
             >
@@ -304,7 +306,6 @@ export function PageList({ initialPages, initialPagination }: PageListProps) {
               size="sm"
               onClick={() => {
                 setFilters({ ...filters, page: filters.page + 1 })
-                setTimeout(fetchPages, 0)
               }}
               disabled={pagination.page === pagination.totalPages || loading}
             >
