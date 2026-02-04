@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { hash } from 'bcryptjs'
+import { hash, compare } from 'bcryptjs'
 import { z } from 'zod'
 
 const updateUserSchema = z.object({
   email: z.string().email('Invalid email address').optional(),
   name: z.string().min(1, 'Name is required').optional(),
   password: z.string().min(6, 'Password must be at least 6 characters').optional(),
+  currentPassword: z.string().optional(),
+  newPassword: z.string().min(6, 'Password must be at least 6 characters').optional(),
   role: z.enum(['ADMIN', 'MODERATOR', 'VISITOR']).optional(),
 })
 
@@ -99,12 +101,22 @@ export async function PUT(
       return NextResponse.json({ error: 'Cannot change your own role' }, { status: 403 })
     }
 
+    // Handle password change with current password verification
+    if (validatedData.newPassword && validatedData.currentPassword) {
+      const isValidPassword = await compare(validatedData.currentPassword, user.password)
+      if (!isValidPassword) {
+        return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 })
+      }
+    }
+
     const updateData: Record<string, unknown> = {}
     
     if (validatedData.email) updateData.email = validatedData.email
     if (validatedData.name) updateData.name = validatedData.name
     if (validatedData.role) updateData.role = validatedData.role
-    if (validatedData.password) {
+    if (validatedData.newPassword) {
+      updateData.password = await hash(validatedData.newPassword, 10)
+    } else if (validatedData.password) {
       updateData.password = await hash(validatedData.password, 10)
     }
 

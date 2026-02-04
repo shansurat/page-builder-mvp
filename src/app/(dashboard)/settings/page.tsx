@@ -31,7 +31,7 @@ export default function SettingsPage() {
 
     try {
       const response = await fetch(`/api/users/${session?.user?.id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email }),
       })
@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
     try {
       const response = await fetch(`/api/users/${session?.user?.id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           currentPassword, 
