@@ -1,0 +1,55 @@
+{
+  "common": {
+    "appName": "منشئ الصفحات",
+    "welcome": "مرحبا",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "search": "بحث",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "pages": "الصفحات",
+    "builder": "المنشئ",
+    "media": "مكتبة الوسائط",
+    "messages": "الرسائل",
+    "analytics": "التحليلات",
+    "users": "المستخدمون",
+    "settings": "الإعدادات",
+    "broadcasts": "البث"
+  },
+  "auth": {
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم",
+    "signIn": "تسجيل الدخول",
+    "signUp": "التسجيل",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "هل لديك حساب بالفعل؟"
+  },
+  "pages": {
+    "title": "الصفحات",
+    "createNew": "إنشاء صفحة جديدة",
+    "editPage": "تعديل الصفحة",
+    "deletePage": "حذف الصفحة",
+    "publishPage": "نشر الصفحة",
+    "unpublishPage": "إلغاء نشر الصفحة",
+    "duplicatePage": "تكرار الصفحة",
+    "viewPage": "عرض الصفحة",
+    "pageTitle": "عنوان الصفحة",
+    "pageSlug": "رابط الصفحة",
+    "pageStatus": "الحالة",
+    "draft": "مسودة",
+    "published": "منشور",
+    "scheduled": "مجدول"
+  }
+}
